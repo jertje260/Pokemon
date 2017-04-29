@@ -1,5 +1,11 @@
-<ion-view view-title="Dex Friends">
+<ion-view view-title="Pokédex" ng-controller="DexCtrl">
   <ion-content>
-    
+    <ion-list>
+      <ion-item class="item-avatar item-icon-right" type="item-text-wrap" ng-repeat="poke in pokemon" ng-href="#/tab/dex/{{poke.id}}"
+        <img ng-src="{{poke.image}}">
+        <h2>{{poke.CapatalizeName()}}</h2>
+        <p>{{poke.info}}</p>
+        <i class="icon ion-chevron-right icon-accessory"></i>
+      </ion-item>
   </ion-content>
 </ion-view>
