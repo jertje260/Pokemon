@@ -1,32 +1,8 @@
-angular.module('pokemon.services', ['ngStorage'])
+angular.module('pokemon.services', ['ngStorage', 'ngCordova'])
 
-    .factory('PokemonFactory', function ($http, $localStorage) {
-        // Might use a resource here that returns a JSON array
+    .factory('PokemonFactory', function ($http, $localStorage, $q, $cordovaFile) {
         var url = 'http://pokeapi.co/api/v2/'
-        // Some fake testing data, later fetching from pokemon api
         var pokemonList = [];
-            //   {
-            //   id: 0,
-            //   name: 'Bulbasaur',
-            //   info: 'Im a grass pokemon',
-            //   image: 'img/ben.png'
-            // }, {
-            //   id: 1,
-            //   name: 'Charmander',
-            //   info: 'Im a fire pokemon',
-            //   image: 'img/ben.png'
-            // }, {
-            //   id: 2,
-            //   name: 'Squirtle',
-            //   info: 'Im a water pokemon',
-            //   image: 'img/ben.png'
-            // }, {
-            //   id: 3,
-            //   name: 'Pikachu',
-            //   info: 'Im an electric pokemon',
-            //   image: 'img/ben.png'
-            // }
-        
 
         function load() {
             loadPokemon();
@@ -42,8 +18,14 @@ angular.module('pokemon.services', ['ngStorage'])
                     p.loadFromAPI(response.data.pokemon_entries[i])
                     pokemonList.push(p);
                 }
-                savePokemon();
-                return pokemonList;
+                var promises = [];
+                for(var i = 0; i < pokemonList.length; i++){
+                    promises.push(loadPokemonInfo(pokemonList[i].id));
+                }
+                $q.all(promises).then(function(data){
+                    savePokemon();
+                    return pokemonList;
+                });
             });
         }
 
@@ -65,21 +47,28 @@ angular.module('pokemon.services', ['ngStorage'])
         }
 
         function loadPokemonInfo(id){
-            var p1 =  $http.get(url + 'pokemon-species/' + id + '/').then(function(data){
-                pokemonList[id].update(data);
-                
+            return $http.get(url + 'pokemon/' + id + '/').then(function(data){
+                var p = getPokemonById(id)
+                p.update(data.data);
+                var name = p.sprite.substr(p.sprite.lastIndexOf('/') + 1);
+                var namePath = p.sprite.substr(0, p.sprite.lastIndexOf('/') + 1);
+                p.localSprite.$promise = $cordovaFile.copyFile(namePath, name, cordova.file.dataDirectory, name).then(function(info){
+                    p.localSprite = cordova.file.dataDirectory + '/' + name;
+                    return cordova.file.dataDirectory + '/' + name;
+                });
+                return pokemonList[id];
             });
         }
 
         load();
 
-        var get = function (pokeId) {
+        var getPokemonById = function (pokeId) {
             var poke = parseInt(pokeId);
             for (var i = 0; i < pokemonList.length; i++) {
                 if (pokemonList[i].id === poke) {
-                    // get extra info of pokemon
-                    loadPokemonInfo(pokemonList[i].id);
                     return pokemonList[i];
+                    // get extra info of pokemon
+                    //pokemonList[i].$promise = loadPokemonInfo(pokemonList[i].id);
                 }
             }
             return null;
@@ -88,7 +77,7 @@ angular.module('pokemon.services', ['ngStorage'])
 
         return {
             all: pokemonList,
-            get: get
+            get: getPokemonById
         };
     })
 
