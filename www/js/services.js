@@ -50,12 +50,6 @@ angular.module('pokemon.services', ['ngStorage', 'ngCordovaFile'])
             return $http.get(url + 'pokemon/' + id + '/').then(function(data){
                 var p = getPokemonById(id)
                 p.update(data.data);
-                var name = p.sprite.substr(p.sprite.lastIndexOf('/') + 1);
-                var namePath = p.sprite.substr(0, p.sprite.lastIndexOf('/') + 1);
-                p.localSprite.$promise = $cordovaFile.copyFile(namePath, name, cordova.file.dataDirectory, name).then(function(info){
-                    p.localSprite = cordova.file.dataDirectory + '/' + name;
-                    return cordova.file.dataDirectory + '/' + name;
-                });
                 return pokemonList[id];
             });
         }
@@ -67,8 +61,6 @@ angular.module('pokemon.services', ['ngStorage', 'ngCordovaFile'])
             for (var i = 0; i < pokemonList.length; i++) {
                 if (pokemonList[i].id === poke) {
                     return pokemonList[i];
-                    // get extra info of pokemon
-                    //pokemonList[i].$promise = loadPokemonInfo(pokemonList[i].id);
                 }
             }
             return null;

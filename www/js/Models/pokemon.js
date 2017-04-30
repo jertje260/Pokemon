@@ -20,13 +20,6 @@ function pokemon() {
         self.evolveLoaded = true;
     }
 
-    self.image = function(){
-        if(self.localSprite !== undefined){
-            return self.localSprite;
-        }
-        return self.sprite;
-    }
-
     self.loadFromAPI = function (info) {
         self.id = info.entry_number;
         self.name = info.pokemon_species.name;
@@ -49,9 +42,6 @@ function pokemon() {
             self.weight = data.weight;
             self.sprite = data.sprite;
             self.speciesId = data.speciesId;
-            if(data.localSprite !== undefined){
-                self.localSprite = data.localSprite;
-            }
             // add here more info from the evolve update
         }
     }
