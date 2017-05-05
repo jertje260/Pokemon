@@ -5,7 +5,7 @@
 // the 2nd parameter is an array of 'requires'
 // 'pokemon.services' is found in services.js
 // 'pokemon.controllers' is found in controllers.js
-angular.module('pokemon', ['ionic', 'pokemon.controllers', 'pokemon.services', 'ionicImgCache'])
+angular.module('pokemon', ['ionic', 'pokemon.controllers', 'pokemon.services'])
 
 .run(function($ionicPlatform) {
   $ionicPlatform.ready(function() {
@@ -85,14 +85,5 @@ angular.module('pokemon', ['ionic', 'pokemon.controllers', 'pokemon.services', '
 })
 .config(function($ionicConfigProvider) {
     $ionicConfigProvider.tabs.position('bottom');
-})
-.config(function(ionicImgCacheProvider) {
-    // Enable imgCache debugging. 
-    ionicImgCacheProvider.debug(false);
- 
-    // Set storage size quota to 100 MB. 
-    ionicImgCacheProvider.quota(100);
-    
-    // Set folder for cached files. 
-    ionicImgCacheProvider.folder('cachedImg');
-  });
+});
+

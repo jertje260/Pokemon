@@ -1,8 +1,12 @@
 <ion-view view-title="{{pokemon.CapatalizeName()}}">
   <ion-content class="padding">
-    <img ng-src="{{pokemon.sprite}}" style="width: 64px; height: 64px">
-    <p>
-      {{pokemon.info}}
-    </p>
+    <img ng-src="{{pokemon.sprite()}}" class="pokemonSpriteDetail">
+    <table>
+      <tbody>
+        <tr><th>height</th><td>{{pokemon.height}}</td></tr>
+        <tr><th>weight</th><td>{{pokemon.weight}}</td></tr>
+        <tr><th>types</th><td><div ng-repeat="type in pokemon.types" class="types"><div>{{type}}</div></div></td></tr>
+        <tr><th>moves</th><td><div ng-repeat="move in pokemon.moves" class="move"><div>{{move}}</div></div></td></tr>
+      </tbody>
   </ion-content>
 </ion-view>

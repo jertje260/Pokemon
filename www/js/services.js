@@ -1,44 +1,39 @@
-angular.module('pokemon.services', ['ngStorage', 'ngCordovaFile'])
+angular.module('pokemon.services', ['ngStorage'])
 
-    .factory('PokemonFactory', function ($http, $localStorage, $q, $cordovaFile) {
+    .factory('PokemonFactory', function ($http, $localStorage, $q) {
         var url = 'http://pokeapi.co/api/v2/'
         var pokemonList = [];
 
         function load() {
             loadPokemon();
-            if(pokemonList.length === 0){
+            if (pokemonList.length === 0) {
                 getAllPokemonFromAPI();
             }
         }
 
         function getAllPokemonFromAPI() {
-            pokemonList.$promise = $http.get(url + 'pokedex/2/').then(function (response) {
-                for (var i = 0; i < response.data.pokemon_entries.length; i++) {
-                    var p = new pokemon();
-                    p.loadFromAPI(response.data.pokemon_entries[i])
-                    pokemonList.push(p);
-                }
-                var promises = [];
-                for(var i = 0; i < pokemonList.length; i++){
-                    promises.push(loadPokemonInfo(pokemonList[i].id));
-                }
-                $q.all(promises).then(function(data){
+            pokemonList.$promise = $http.get(url + 'pokedex/2/')
+                .then(function (response) {
+                    for (var i = 0; i < response.data.pokemon_entries.length; i++) {
+                        var p = new pokemon();
+                        p.loadFromAPI(response.data.pokemon_entries[i])
+                        pokemonList.push(p);
+                    }
                     savePokemon();
                     return pokemonList;
                 });
-            });
         }
 
 
 
         function savePokemon() {
-            $localStorage.PokeDex = JSON.stringify(pokemonList);
+            $localStorage["PokeDex"] = JSON.stringify(pokemonList);
         }
 
         function loadPokemon() {
-            if($localStorage.PokeDex !== undefined){
+            if ($localStorage["PokeDex"] !== undefined) {
                 var pokes = JSON.parse($localStorage.PokeDex);
-                for(var i =0 ; i < pokes.length ; i++){
+                for (var i = 0; i < pokes.length; i++) {
                     var p = new pokemon();
                     p.loadFromStorage(pokes[i]);
                     pokemonList.push(p);
@@ -46,24 +41,56 @@ angular.module('pokemon.services', ['ngStorage', 'ngCordovaFile'])
             }
         }
 
-        function loadPokemonInfo(id){
-            return $http.get(url + 'pokemon/' + id + '/').then(function(data){
-                var p = getPokemonById(id)
+        function loadPokemonInfo(id) {
+            return $http.get(url + 'pokemon/' + id + '/').then(function (data) {
+                var p = getPokemon(data.data.id);
                 p.update(data.data);
-                return pokemonList[id];
+                return pokemonList[data.data.id];
             });
         }
 
         load();
 
-        var getPokemonById = function (pokeId) {
-            var poke = parseInt(pokeId);
+        function loadEvolvePokemon(evolveChainId) {
+
+        }
+        function getPokemon(id) {
             for (var i = 0; i < pokemonList.length; i++) {
-                if (pokemonList[i].id === poke) {
+                if (pokemonList[i].id === id) {
                     return pokemonList[i];
                 }
             }
             return null;
+        }
+
+        var getPokemonById = function (pokeId) {
+            var poke = parseInt(pokeId);
+            var found = false;
+            for (var i = 0; i < pokemonList.length; i++) {
+                if (pokemonList[i].id === poke) {
+                    found = true;
+                    var p1 = {}, p2 = {};
+                    var id = i;
+                    var updating = false;
+                    if (!pokemonList[i].pokemonLoaded) {
+                        updating = true;
+                        p1.$promise = loadPokemonInfo(pokeId);
+                    }
+                    if (!pokemonList[i].evolveLoaded) {
+                        updating = true;
+                        p2.$promise = loadEvolvePokemon(pokemonList[i].speciesId);
+                    }
+                    return pokemonList[id].$promise = $q.all([p1, p2, id, updating]).then(function (promises) {
+                        if (promises[3]) {
+                            savePokemon();
+                        }
+                        return pokemonList[id];
+                    });
+                }
+            }
+            if (!found) {
+                return null;
+            }
         }
 
 

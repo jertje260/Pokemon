@@ -10,15 +10,15 @@ angular.module('pokemon.controllers', [])
         //
         //$scope.$on('$ionicView.enter', function(e) {
         //});
-
         $scope.pokemon = PokemonFactory.all;
-
-
 
     })
 
     .controller('DexDetailCtrl', function ($scope, $stateParams, PokemonFactory) {
-        $scope.pokemon = PokemonFactory.get($stateParams.pokeId);
+        var pokemonPromise = PokemonFactory.get($stateParams.pokeId);
+        pokemonPromise.then(function(result){
+            $scope.pokemon = result;
+        });
     })
 
     .controller('AccountCtrl', function ($scope) {

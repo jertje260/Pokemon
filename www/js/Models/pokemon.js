@@ -10,12 +10,13 @@ function pokemon() {
         self.height = moreInfo.height;
         self.weight = moreInfo.weight;
         setMoves(moreInfo.moves);
-        self.sprite = moreInfo.sprites["front_default"];
         self.speciesId = getIdFromURL(moreInfo.species.url);
 
         self.pokemonLoaded = true;
     }
-
+    self.sprite = function(){
+        return "/img/pokemon/" + self.id + ".png";
+    }
     self.updateEvolveInfo = function (evolveData) {
         self.evolveLoaded = true;
     }
@@ -23,10 +24,6 @@ function pokemon() {
     self.loadFromAPI = function (info) {
         self.id = info.entry_number;
         self.name = info.pokemon_species.name;
-    }
-
-    self.setLocalSprite = function(location){
-        self.localSprite = location;
     }
 
     self.loadFromStorage = function (data) {
