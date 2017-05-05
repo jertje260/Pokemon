@@ -1,4 +1,4 @@
-<ion-view view-title="{{pokemon.CapatalizeName()}}">
+<ion-view view-title="{{pokemon.name}}">
   <ion-content class="padding">
     <img ng-src="{{pokemon.sprite()}}" class="pokemonSpriteDetail">
     <table>
@@ -7,7 +7,20 @@
         <tr><th>weight</th><td>{{pokemon.weight}}</td></tr>
         <tr><th>types</th><td><div ng-repeat="type in pokemon.types" class="types"><div>{{type}}</div></div></td></tr>
         <tr><th>stats</th><td><div ng-repeat="stat in pokemon.stats" class="stat"><div>{{stat.name}} : {{stat.base}}</div></div></td></tr>
+        <tr><th>evolution chain</th><td>
+          <div ng-repeat="c1 in pokemon.chain">
+            <img ng-src="img/pokemon/{{c1.speciesId}}.png" class="pokemonSpriteEvolution">
+            <div ng-repeat="c2 in c1.evolvesTo">
+              <img ng-src="img/pokemon/{{c2.speciesId}}.png" class="pokemonSpriteEvolution">
+              <div ng-repeat="c3 in c2.evolvesTo">
+                <div>
+                  <img ng-src="img/pokemon/{{c3.speciesId}}.png" class="pokemonSpriteEvolution">
+                </div>
+              </div>
+            </div>
+          </td>
+        </tr>
       </tbody>
-      <!-- evolution -->
+    </table>
   </ion-content>
 </ion-view>
