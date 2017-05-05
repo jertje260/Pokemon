@@ -15,7 +15,7 @@ function pokemon() {
         self.pokemonLoaded = true;
     }
     self.sprite = function(){
-        return "/img/pokemon/" + self.id + ".png";
+        return "img/pokemon/" + self.id + ".png";
     }
     self.updateEvolveInfo = function (evolveData) {
         self.evolveLoaded = true;
@@ -37,7 +37,6 @@ function pokemon() {
             self.moves = data.moves;
             self.height = data.height;
             self.weight = data.weight;
-            self.sprite = data.sprite;
             self.speciesId = data.speciesId;
             // add here more info from the evolve update
         }
@@ -50,6 +49,10 @@ function pokemon() {
         }
     }
 
+    self.setEvolutionChain = function(chain){
+        
+    }
+
     function setStats(stats) {
         self.stats = [];
         for (var i = 0; i < stats.length; i++) {
@@ -60,14 +63,31 @@ function pokemon() {
         }
     }
 
+    self.getObjectForStoring = function(){
+        var p = {};
+        p.id = self.id;
+        p.name = self.name;
+        p.pokemonLoaded = self.pokemonLoaded;
+        if(self.pokemonLoaded){
+            p.types = self.types;
+            p.stats = self.stats;
+            p.moves = self.moves;
+            p.height = self.height;
+            p.weight = self.weight;
+            p.speciesId = self.speciesId;
+        }
+        
+        return p;
+    }
+
     function setMoves(moves) {
 
     };
 
     function getIdFromURL(url) {
         var pattern = /http:\/\/pokeapi\.co\/api\/v2\/.*?\/(\d+)\//;
-        var id = url.match(pattern)[0];
-        return id;
+        var ids = url.match(pattern);
+        return ids[1];
     }
 
     self.CapatalizeName = function () {

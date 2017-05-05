@@ -27,7 +27,11 @@ angular.module('pokemon.services', ['ngStorage'])
 
 
         function savePokemon() {
-            $localStorage["PokeDex"] = JSON.stringify(pokemonList);
+            var pokes = [];
+            for(var j = 0; j < pokemonList.length; j++){
+                pokes.push(pokemonList[j].getObjectForStoring());
+            }
+            $localStorage["PokeDex"] = JSON.stringify(pokes);
         }
 
         function loadPokemon() {

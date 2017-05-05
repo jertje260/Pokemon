@@ -6,7 +6,8 @@
         <tr><th>height</th><td>{{pokemon.height}}</td></tr>
         <tr><th>weight</th><td>{{pokemon.weight}}</td></tr>
         <tr><th>types</th><td><div ng-repeat="type in pokemon.types" class="types"><div>{{type}}</div></div></td></tr>
-        <tr><th>moves</th><td><div ng-repeat="move in pokemon.moves" class="move"><div>{{move}}</div></div></td></tr>
+        <tr><th>stats</th><td><div ng-repeat="stat in pokemon.stats" class="stat"><div>{{stat.name}} : {{stat.base}}</div></div></td></tr>
       </tbody>
+      <!-- evolution -->
   </ion-content>
 </ion-view>
