@@ -1,27 +1,11 @@
 <ion-view view-title="Pokédex">
-  <ion-content ng-controller="DexCtrl">
-    <div class="row" ng-repeat="poke in pokemon" ng-if="$index % 4 === 0">
-      <div class="col col-25" ng-if="$index < pokemon.length">
+  <ion-content ng-controller="DexCtrl" class="padding">
+    <div class="center">
+      <div ng-repeat="poke in pokemon" class="dexPoke">
         <a ng-href="#/tab/dex/{{pokemon[$index].id}}">
-        <img ng-src="{{pokemon[$index].sprite()}}" width="100%" alt="{{pokemon[$index].name}}" />
-      </a>
-      </div>
-      <div class="col col-25" ng-if="$index + 1 < pokemon.length" ng-href="#/tab/dex/{{pokemon[$index + 1].id}}">
-        <a ng-href="#/tab/dex/{{pokemon[$index + 1].id}}">
-        <img ng-src="{{pokemon[$index + 1].sprite()}}" width="100%" alt="{{pokemon[$index + 1].name}}" />
-      </a>
-      </div>
-      <div class="col col-25" ng-if="$index + 2 < pokemon.length" ng-href="#/tab/dex/{{pokemon[$index + 2].id}}">
-        <a ng-href="#/tab/dex/{{pokemon[$index + 2].id}}">
-        <img ng-src="{{pokemon[$index + 2].sprite()}}" width="100%" alt="{{pokemon[$index + 2].name}}"/>
-      </a>
-      </div>
-      <div class="col col-25" ng-if="$index + 3 < pokemon.length" ng-href="#/tab/dex/{{pokemon[$index + 3].id}}">
-        <a ng-href="#/tab/dex/{{pokemon[$index + 3].id}}">
-        <img ng-src="{{pokemon[$index + 3].sprite()}}" width="100%" alt="{{pokemon[$index + 3].name}}"/>
+        <img ng-src="{{pokemon[$index].sprite()}}" alt="{{pokemon[$index].name}}" />
       </a>
       </div>
     </div>
-
   </ion-content>
 </ion-view>

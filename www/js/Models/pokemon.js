@@ -95,7 +95,7 @@ function pokemon() {
     function getIdFromURL(url) {
         var pattern = /http:\/\/pokeapi\.co\/api\/v2\/.*?\/(\d+)\//;
         var ids = url.match(pattern);
-        return ids[1];
+        return parseInt(ids[1]);
     }
 
     function CapatalizeName(name){
