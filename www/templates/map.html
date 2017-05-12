@@ -1,5 +1,8 @@
 <ion-view view-title="Map">
-  <ion-content>
+  <ion-content ng-controller="MapCtrl">
+    <div>{{player.location.lat}}</div>
+    <div>{{player.location.long}}</div>
+    <div>{{player.distanceWalked}}</div>
     <canvas id="canvas">You dont support the canvas...</canvas>
     
   </ion-content>
