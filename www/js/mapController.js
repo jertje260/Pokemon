@@ -1,31 +1,33 @@
 angular.module('pokemon.controllers')
 
     .controller('MapCtrl', function ($scope, $cordovaGeolocation, $ionicLoading, PlayerFactory, $ionicPlatform) {
-        var posOptions = { timeout: 1000, enableHighAccuracy: true };
+        var posOptions = { timeout: 10000, enableHighAccuracy: true };
         $scope.player = PlayerFactory.getPlayerInfo();
 
         $ionicPlatform.ready(function () {
 
 
-            navigator.geolocation
+            $cordovaGeolocation
                 .getCurrentPosition(posOptions)
                 .then(function (position) {
                     updateLocation(position);
                 }, function (err) {
                     // error
+                    console.warn(err.code + '::::' + err.message);
                 });
 
 
             var watchOptions = {
-                timeout: 1000,
-                enableHighAccuracy: false // may cause errors if true
+                timeout: 10000,
+                enableHighAccuracy: true // may cause errors if true
             };
 
-            var watch = navigator.geolocation.watchPosition(watchOptions);
+            var watch = $cordovaGeolocation.watchPosition(watchOptions);
             watch.then(
                 null,
                 function (err) {
                     // error
+                    console.warn(err.code + '::::' + err.message);
                 },
                 function (position) {
                     updateLocation(position);
