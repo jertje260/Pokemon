@@ -1,12 +1,15 @@
-angular.module('pokemon.services', ['ngStorage'])
+angular.module('pokemon.services')
 
-    .factory('PlayerFactory', function ($localstorage) {
+    .factory('PlayerFactory', function ($localStorage) {
         var player = {};
 
         var getPlayerInfo = function () {
             if ($localStorage["player"] !== undefined) {
                 player = JSON.parse($localStorage["player"]);
                 return player;
+            } else {
+                player.distanceWalked = 0;
+                player.location = null;
             }
         }
 
