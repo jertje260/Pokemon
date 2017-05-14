@@ -1,8 +1,9 @@
 angular.module('pokemon.controllers')
 
-    .controller('MapCtrl', function ($scope, $cordovaGeolocation, $ionicLoading, PlayerFactory, $ionicPlatform) {
+    .controller('MapCtrl', function ($scope, $cordovaGeolocation, $ionicLoading, PlayerFactory, $ionicPlatform, GameFactory, PokemonFactory) {
         var posOptions = { timeout: 10000, enableHighAccuracy: true };
         $scope.player = PlayerFactory.getPlayerInfo();
+        $scope.poke = null;
 
         $ionicPlatform.ready(function () {
 
@@ -36,6 +37,9 @@ angular.module('pokemon.controllers')
                     updateLocation(position);
                     updateMarker();
                     center();
+                    if($scope.player.spawnPoke){
+                        spawnPoke();
+                    }
                 });
         });
 
@@ -93,4 +97,20 @@ angular.module('pokemon.controllers')
         function updateMarker() {
             $scope.locationMarker.setPosition(new google.maps.LatLng($scope.player.location.lat, $scope.player.location.long));
         }
+
+
+        function spawnPoke(){
+            var pokeid = GameFactory.spawnPoke();
+            $scope.poke = PokemonFactory.getById(pokeid);
+            console.log('new poke: '+ $scope.poke.name);
+            PlayerFactory.pokeActive(true);
+            PlayerFactory.pokeSpawned();
+            GameFactory.doGamePlay($scope.poke);
+        }
+
+        function resetPoke(){
+            $scope.poke = null;
+            PlayerFactory.pokeActive(false);
+        }
+
     })

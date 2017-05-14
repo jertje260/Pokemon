@@ -110,7 +110,7 @@ angular.module('pokemon.services', ['ngStorage'])
             }
         }
 
-        function getPokemon(id) {
+        var getPokemon = function(id) {
             for (var i = 0; i < pokemonList.length; i++) {
                 if (pokemonList[i].id === id) {
                     return pokemonList[i];
@@ -147,7 +147,8 @@ angular.module('pokemon.services', ['ngStorage'])
 
         return {
             all: pokemonList,
-            get: getPokemonById
+            get: getPokemonById,
+            getById: getPokemon
         };
     })
 

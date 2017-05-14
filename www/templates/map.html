@@ -1,13 +1,18 @@
 <ion-view view-title="Map">
   <ion-content id="outer" ng-controller="MapCtrl">
+    <!-- HUD Overlay over map -->
     <div class="hud">
       <div id="distance">{{player.distanceWalked | number:0}}m walked</div>
+      <div id="nextPoke">Next pokémon in {{player.nextPoke() | number:0}}m</div>
+      <div id="button1"></div>
+      <div id="button2"></div>
+      <div id="button3"></div>
     </div>
+    <!-- map -->
     <div id="map"></div>
 
-
-    <!--<canvas id="canvas">You dont support the canvas...</canvas>-->
-    <div id="pokespawn"></div>
+    <!-- canvas for pokemon capturing -->
+    <canvas id="canvas">You dont support the canvas...Thus it is not possible to catch pokemon...</canvas>
 
 
   </ion-content>

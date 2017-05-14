@@ -9,14 +9,18 @@ angular.module('pokemon.services')
         var getPlayerInfo = function () {
             if ($localStorage["player"] !== undefined) {
                 player = JSON.parse($localStorage["player"]);
-                avglocation = null;
-                locations = [];
-                return player;
             } else {
                 player.distanceWalked = 0;
-                avglocation = null;
-                locations = [];
             }
+            player.spawnPoke = false;
+            player.pokeActive = false;
+            player.nextPoke = function () {
+                var next =  spawnDistance - (player.distanceWalked % spawnDistance);
+                return next;
+            };
+            avglocation = null;
+            locations = [];
+            return player;
         }
 
         var updateLocation = function (location) {
@@ -24,9 +28,8 @@ angular.module('pokemon.services')
                 var newAvgLocation = getAverageLocation();
                 if (avglocation != null) {
                     var dist = calculateDistance(newAvgLocation);
-                    if (player.distanceWalked != 0 && player.distanceWalked % spawnDistance > (player.distanceWalked + dist) % spawnDistance) {
-                        // spawnPoke();
-                        console.log('spawnPoke');
+                    if (player.distanceWalked != 0 && player.distanceWalked % spawnDistance > (player.distanceWalked + dist) % spawnDistance && !player.pokeActive) {
+                        player.spawnPoke = true;
                     }
                     player.distanceWalked += dist;
                 }
@@ -74,8 +77,17 @@ angular.module('pokemon.services')
             return Value * Math.PI / 180;
         }
 
+        var pokeSpawned = function(){
+            player.spawnPoke = false;
+        }
+
+        var pokeActive = function(bool){
+            player.pokeActive = bool;
+        }
         return {
             getPlayerInfo: getPlayerInfo,
-            updateLocation: updateLocation
+            updateLocation: updateLocation,
+            pokeSpawned: pokeSpawned,
+            pokeActive: pokeActive
         };
     })
