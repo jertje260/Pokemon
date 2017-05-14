@@ -27,8 +27,6 @@ angular.module('pokemon.services')
                     if (player.distanceWalked != 0 && player.distanceWalked % spawnDistance > (player.distanceWalked + dist) % spawnDistance) {
                         // spawnPoke();
                         console.log('spawnPoke');
-                        var div = document.getElementById('pokespawn');
-                        div.innerHTML = div.innerHTML + "spawnPoke\n";
                     }
                     player.distanceWalked += dist;
                 }

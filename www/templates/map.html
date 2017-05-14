@@ -1,10 +1,14 @@
 <ion-view view-title="Map">
-  <ion-content ng-controller="MapCtrl">
-    <div>{{player.location.lat}}</div>
-    <div>{{player.location.long}}</div>
-    <div>{{player.distanceWalked}}</div>
+  <ion-content id="outer" ng-controller="MapCtrl">
+    <div class="hud">
+      <div id="distance">{{player.distanceWalked | number:0}}m walked</div>
+    </div>
+    <div id="map"></div>
+
+
     <!--<canvas id="canvas">You dont support the canvas...</canvas>-->
     <div id="pokespawn"></div>
-    
+
+
   </ion-content>
 </ion-view>
