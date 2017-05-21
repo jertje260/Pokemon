@@ -63,11 +63,10 @@ angular.module('pokemon.controllers')
                 center: myLatlng,
                 zoom: 18,
                 styles: [
-                    { "featureType": "administrative.locality", "elementType": "all", "stylers": [{ "visibility": "off" }] }, 
+                    { "featureType": "administrative", "elementType": "all", "stylers": [{ "visibility": "off" }] }, 
                     { "featureType": "landscape", "elementType": "all", "stylers": [{ "color": "#AFFFA0" }] },
-                    { "featureType": "poi", "elementType": "all", "stylers": [{ "color": "#EAFFE5" }] }, 
-                    { "featureType": "poi.business", "elementType": "all", "stylers": [{ "visibility": "off" }] }, 
-                    { "featureType": "poi.government", "elementType": "all", "stylers": [{ "visibility": "off" }] }, 
+                    { "featureType": "poi", "elementType": "all", "stylers": [{ "visibility": "off" }] },  
+                    { "featureType": "transit", "elementType": "all", "stylers": [{ "visibility": "off" }] }, 
                     { "featureType": "road", "elementType": "geometry", "stylers": [{ "color": "#59A499" }] }, 
                     { "featureType": "road", "elementType": "geometry.stroke", "stylers": [{ "color": "#F0FF8D" }, { "weight": 2.2 }] }, 
                     { "featureType": "water", "elementType": "all", "stylers": [{ "visibility": "on" }, { "color": "#1A87D6" }] }],
@@ -86,11 +85,14 @@ angular.module('pokemon.controllers')
         }
 
         function createMarker() {
-
+            var markerImage = new google.maps.MarkerImage('img/ash.png',
+                new google.maps.Size(60, 86),
+                new google.maps.Point(0, 0),
+                new google.maps.Point(30, 43));
             $scope.locationMarker = new google.maps.Marker({
                 position: new google.maps.LatLng($scope.player.location.lat, $scope.player.location.long),
                 map: $scope.map,
-                icon: 'img/ash.png'
+                icon: markerImage
             });
         }
 
@@ -105,7 +107,7 @@ angular.module('pokemon.controllers')
             console.log('new poke: '+ $scope.poke.name);
             PlayerFactory.pokeActive(true);
             PlayerFactory.pokeSpawned();
-            GameFactory.doGamePlay($scope.poke);
+            GameFactory.doGamePlay($scope.poke, resetPoke);
         }
 
         function resetPoke(){

@@ -6,6 +6,8 @@ angular.module('pokemon.services')
         var ctx;
         var pokeImg;
         var poke;
+        var exitImage;
+        var callback;
 
         function init() {
             var pokes = [];
@@ -20,6 +22,21 @@ angular.module('pokemon.services')
                     notSoRandomArray.push(pokes[i]);
                 }
             }
+            // finish the exit image
+            exitImage = new Image(48, 48);
+            exitImage.isLoaded = false;
+            exitImage.onload = function () {
+                exitImage.isLoaded = true;
+                startAnimation();
+            }
+            exitImage.src = 'img/exit.png';
+            canvas = document.getElementById('canvas');
+            ctx = canvas.getContext("2d");
+
+
+            canvas.onclick = function (event) {
+                canvasClick(event);
+            }
         }
 
         var spawnPoke = function () {
@@ -29,38 +46,52 @@ angular.module('pokemon.services')
             // start creating the canvas and draw spawning etc on it.
         }
 
-        var doGamePlay = function (pokemon) {
+        function canvasClick(event) {
+            if (event.layerX >= 10 && event.layerX <= 45 && event.layerY >= 10 && event.layerY <= 45) {
+                endAnimation();
+            }
+            event.preventDefault();
+        }
+
+        var doGamePlay = function (pokemon, returnFunc) {
             poke = pokemon;
-            canvas = document.getElementById('canvas');
-            ctx = canvas.getContext("2d");
-            canvas.style.display = "block";
+            callback = returnFunc;
 
-            canvas.height = canvas.scrollHeight;
-            canvas.width = canvas.scrollWidth;
-
+            canvas.height = canvas.parentElement.scrollHeight;
+            canvas.width = canvas.parentElement.scrollWidth;
             pokeImg = new Image(96, 96);
             pokeImg.onload = function () {
+                pokeImg.isLoaded = true;
                 startAnimation();
             }
+            pokeImg.isLoaded = false;
             pokeImg.src = 'img/pokemon/' + poke.id + '.png';
         }
 
         function startAnimation() {
-            ctx.fillStyle = "#AFFFA0";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = "#000000";
-            ctx.font = "15px Hevetica";
-            ctx.textAlign = "center";
-            ctx.fillText("A wild " + poke.name + " appeared", canvas.width / 2, 30);
+            if (pokeImg !== undefined && pokeImg.isLoaded && exitImage !== undefined && exitImage.isLoaded) {
+                canvas.style.display = "block";
+                ctx.fillStyle = "#AFFFA0";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = "#000000";
+                ctx.font = "15px Hevetica";
+                ctx.textAlign = "center";
+                ctx.fillText("A wild " + poke.name + " appeared", canvas.width / 2, 30);
 
-            ctx.fillText("Start catching " + poke.name + " by turning your phone", canvas.width / 2, canvas.height - 30);
+                ctx.fillText("Start catching " + poke.name + " by turning your phone", canvas.width / 2, canvas.height - 30);
 
-            ctx.drawImage(pokeImg, canvas.width / 2 - pokeImg.width, canvas.height / 2 - pokeImg.height, pokeImg.width * 2, pokeImg.height * 2);
+                ctx.drawImage(pokeImg, canvas.width / 2 - pokeImg.width, canvas.height / 2 - pokeImg.height, pokeImg.width * 2, pokeImg.height * 2);
+                ctx.drawImage(exitImage, 10, 10, 35, 35);
+            }
         }
 
         function endAnimation() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             canvas.style.display = "none";
+            if (callback !== undefined && typeof callback === 'function') {
+                callback();
+            }
+
         }
 
         init();
