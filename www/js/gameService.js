@@ -35,6 +35,9 @@ angular.module('pokemon.services')
             ctx = canvas.getContext("2d");
             canvas.style.display = "block";
 
+            canvas.height = canvas.scrollHeight;
+            canvas.width = canvas.scrollWidth;
+
             pokeImg = new Image(96, 96);
             pokeImg.onload = function () {
                 startAnimation();
@@ -43,9 +46,21 @@ angular.module('pokemon.services')
         }
 
         function startAnimation() {
+            ctx.fillStyle = "#AFFFA0";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "#000000";
             ctx.font = "15px Hevetica";
-            ctx.fillText("Start catching " + poke.name + " \nby turning your phone!", 10, 30);
-            ctx.drawImage(pokeImg, 50, 50, 50, 50);
+            ctx.textAlign = "center";
+            ctx.fillText("A wild " + poke.name + " appeared", canvas.width / 2, 30);
+
+            ctx.fillText("Start catching " + poke.name + " by turning your phone", canvas.width / 2, canvas.height - 30);
+
+            ctx.drawImage(pokeImg, canvas.width / 2 - pokeImg.width, canvas.height / 2 - pokeImg.height, pokeImg.width * 2, pokeImg.height * 2);
+        }
+
+        function endAnimation() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            canvas.style.display = "none";
         }
 
         init();

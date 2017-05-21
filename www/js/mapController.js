@@ -113,4 +113,8 @@ angular.module('pokemon.controllers')
             PlayerFactory.pokeActive(false);
         }
 
+        $scope.triggerPokeSpawn = function(){
+            spawnPoke();
+        }
+
     })
