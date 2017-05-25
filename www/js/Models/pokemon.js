@@ -39,7 +39,7 @@ function pokemon() {
             self.seen = data.seen;
         }
         if (data.caught === undefined) {
-            self.caught = 0; s
+            self.caught = 0;
         } else {
             self.caught = data.caught;
         }
