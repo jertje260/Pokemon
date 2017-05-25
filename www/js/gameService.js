@@ -1,6 +1,6 @@
 angular.module('pokemon.services')
 
-    .factory('GameFactory', ['CompassFactory',function (CompassFactory) {
+    .factory('GameFactory', ['CompassFactory', function (CompassFactory) {
         var notSoRandomArray = [];
         var canvas;
         var ctx;
@@ -14,6 +14,9 @@ angular.module('pokemon.services')
         var checkHeadings = {};
         var stopRunning = false;
         var headingChanged = 0;
+        var endingCycles = 60;
+        var pokeCaptured = false;
+        var pokeballRadius = 80;
 
         function init() {
             var pokes = [];
@@ -62,7 +65,7 @@ angular.module('pokemon.services')
         var doGamePlay = function (pokemon, returnFunc) {
             poke = pokemon;
             callback = returnFunc;
-
+            pokeCaptured = false;
             CompassFactory.startWatching(updateHeading);
             stopRunning = false;
             canvas.height = canvas.parentElement.scrollHeight;
@@ -81,44 +84,40 @@ angular.module('pokemon.services')
             if (headingStart === undefined || headingStart === null) {
                 headingStart = heading;
                 headingChanged = 0;
-                checkHeadings.north = false;
-                checkHeadings.east = false;
-                checkHeadings.south = false;
-                checkHeadings.west = false;
+                checkHeadings.north = undefined;
+                checkHeadings.east = undefined;
+                checkHeadings.south = undefined;
+                checkHeadings.west = undefined;
                 headings = [];
                 headings.push(heading);
             } else {
-                headingChanged += (heading - headings[headings.length - 1]);
-                if (heading > 90 && headings[headings.length - 1] < 90 || heading < 90 && headings[headings.length - 1] > 90) {
-                    checkHeadings.east = true;
-                } else if (heading > 180 && headings[headings.length - 1] < 180 || heading < 180 && headings[headings.length - 1] > 180) {
-                    checkHeadings.south = true;
-                } else if (heading > 270 && headings[headings.length - 1] < 270 || heading < 270 && headings[headings.length - 1] > 270) {
-                    checkHeadings.west = true;
-                } else if (heading > 0 && headings[headings.length - 1] < 360 && (heading +360) > headings[headings.length - 1]|| heading < 360 && headings[headings.length - 1] > 0 && (headings[headings.length - 1] +360) > heading) {
-                    checkHeadings.east = true;
+                var angle_delta = (((heading - headings[headings.length - 1]) + 180) - Math.floor(((heading - headings[headings.length - 1]) + 180) / 360) * 360) - 180;
+                headingChanged += angle_delta;
+                if (Math.abs(headingChanged) > 360) {
+                    pokeCaptured = true;
                 }
                 headings.push(heading);
             }
         }
 
-        function done(){
-            return(checkHeadings.east && checkHeadings.south && checkHeadings.west && checkHeadings.north || stopRunning);
-        }        
-
         function draw() {
-            if(!done()){
-            setTimeout(function () {
+            if (!stopRunning) {
+                setTimeout(function () {
 
-                requestAnimationFrame(draw);
+                    requestAnimationFrame(draw);
 
-                render();
+                    render();
 
-            }, 1000 / 30);
+                }, 1000 / 30);
             } else {
                 endAnimation();
             }
         }
+
+        function degreesToRadian(degrees) {
+            return degrees * Math.PI / 180;
+        }
+
 
         function render() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -127,12 +126,79 @@ angular.module('pokemon.services')
             ctx.fillStyle = "#000000";
             ctx.font = "15px Hevetica";
             ctx.textAlign = "center";
-            ctx.fillText("A wild " + poke.name + " appeared", canvas.width / 2, 30);
-            ctx.fillText("You have changed " + headingChanged + " degrees", canvas.width/2, canvas.height - 60);
-            ctx.fillText("Start catching " + poke.name + " by turning your phone", canvas.width / 2, canvas.height - 30);
-
-            ctx.drawImage(pokeImg, canvas.width / 2 - pokeImg.width, canvas.height / 2 - pokeImg.height, pokeImg.width * 2, pokeImg.height * 2);
+            // add share image to share a screenshot of pokemon with text
             ctx.drawImage(exitImage, 10, 10, 35, 35);
+            ctx.drawImage(pokeImg, canvas.width / 2 - pokeImg.width, canvas.height / 2 - pokeImg.height, pokeImg.width * 2, pokeImg.height * 2);
+            if (!pokeCaptured) {
+                ctx.fillText("A wild " + poke.name + " appeared", canvas.width / 2, 30);
+                ctx.fillText("Start catching " + poke.name + " by turning your phone", canvas.width / 2, canvas.height - 30);
+
+                // drawing capture circle in parts
+                ctx.lineWidth = 5;
+                var start = Math.PI;
+                if (headingChanged > 0) { // clockwise
+                    // first part
+                    var p1 = headingChanged;
+                    var p2 = headingChanged - 90;
+                    var p3 = headingChanged - 270;
+                    if (headingChanged > 90) {
+                        p1 = 90;
+                        if (headingChanged > 270) {
+                            p2 = 180;
+                            ctx.beginPath()
+                            ctx.strokeStyle = "#f2020e";
+                            ctx.arc(canvas.width / 2, canvas.height / 2, pokeballRadius, start, start + degreesToRadian(p3));
+                            ctx.stroke();
+                        }
+
+                        start = 0;
+                        ctx.beginPath()
+                        ctx.strokeStyle = "#FFFFFF";
+                        ctx.arc(canvas.width / 2, canvas.height / 2, pokeballRadius, start, start + degreesToRadian(p2));
+                        ctx.stroke();
+
+                    }
+                    start = 1.5 * Math.PI;
+                    ctx.beginPath()
+                    ctx.strokeStyle = "#f2020e";
+                    ctx.arc(canvas.width / 2, canvas.height / 2, pokeballRadius, start, start + degreesToRadian(p1));
+                    ctx.stroke();
+                } else { // anticlockwise
+                    // first part
+                    start = 0
+                    var p1 = headingChanged;
+                    var p2 = headingChanged + 90;
+                    var p3 = headingChanged + 270;
+                    if (headingChanged < -90) {
+                        p1 = -90;
+                        if (headingChanged < -270) {
+                            p2 = -180;
+                            ctx.beginPath()
+                            ctx.strokeStyle = "#f2020e";
+                            ctx.arc(canvas.width / 2, canvas.height / 2, pokeballRadius, start + degreesToRadian(p3), start);
+                            ctx.stroke();
+                        }
+
+
+                        start = Math.PI;
+                        ctx.beginPath()
+                        ctx.strokeStyle = "#FFFFFF";
+                        ctx.arc(canvas.width / 2, canvas.height / 2, pokeballRadius, start + degreesToRadian(p2), start);
+                        ctx.stroke();
+
+                    }
+                    start = 1.5 * Math.PI;
+                    ctx.beginPath()
+                    ctx.strokeStyle = "#f2020e";
+                    ctx.arc(canvas.width / 2, canvas.height / 2, pokeballRadius, start + degreesToRadian(p1), start);
+                    ctx.stroke();
+                }
+
+
+
+            } else {
+                ctx.fillText("You captured " + poke.name + "!", canvas.width / 2, 30);
+            }
         }
 
         function startAnimation() {
@@ -148,7 +214,7 @@ angular.module('pokemon.services')
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             canvas.style.display = "none";
             if (callback !== undefined && typeof callback === 'function') {
-                callback();
+                callback(pokeCaptured);
             }
 
         }

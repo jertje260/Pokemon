@@ -90,7 +90,11 @@ angular.module('pokemon.controllers')
             GameFactory.doGamePlay($scope.poke, resetPoke);
         }
 
-        function resetPoke() {
+        function resetPoke(captured) {
+            if(captured){
+                // update captured count for pokemon
+            }
+            // update seen count for pokemon
             $scope.poke = null;
             PlayerFactory.pokeActive(false);
         }
