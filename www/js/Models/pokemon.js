@@ -13,7 +13,7 @@ function pokemon() {
         self.speciesId = getIdFromURL(moreInfo.species.url);
         self.pokemonLoaded = true;
     }
-    self.sprite = function(){
+    self.sprite = function () {
         return "img/pokemon/" + self.id + ".png";
     }
     self.updateEvolveInfo = function (chain) {
@@ -24,6 +24,8 @@ function pokemon() {
     self.loadFromAPI = function (info) {
         self.id = info.entry_number;
         self.name = CapatalizeName(info.pokemon_species.name);
+        self.seen = 0;
+        self.caught = 0;
     }
 
     self.loadFromStorage = function (data) {
@@ -31,6 +33,16 @@ function pokemon() {
         self.name = data.name;
         self.pokemonLoaded = data.pokemonLoaded;
         self.evolveLoaded = data.evolveLoaded;
+        if (data.seen === undefined) {
+            self.seen = 0;
+        } else {
+            self.seen = data.seen;
+        }
+        if (data.caught === undefined) {
+            self.caught = 0; s
+        } else {
+            self.caught = data.caught;
+        }
 
         if (self.pokemonLoaded) {
             self.types = data.types;
@@ -41,10 +53,10 @@ function pokemon() {
             self.speciesId = data.speciesId;
             // add here more info from the evolve update
         }
-        if(self.evolveLoaded){
+        if (self.evolveLoaded) {
             self.chain = data.chain;
         }
-        
+
     }
 
     function setTypes(types) {
@@ -64,13 +76,15 @@ function pokemon() {
         }
     }
 
-    self.getObjectForStoring = function(){
+    self.getObjectForStoring = function () {
         var p = {};
         p.id = self.id;
         p.name = self.name;
         p.pokemonLoaded = self.pokemonLoaded;
         p.evolveLoaded = self.evolveLoaded;
-        if(self.pokemonLoaded){
+        p.seen = self.seen;
+        p.caught = self.caught;
+        if (self.pokemonLoaded) {
             p.types = self.types;
             p.stats = self.stats;
             p.moves = self.moves;
@@ -78,13 +92,13 @@ function pokemon() {
             p.weight = self.weight;
             p.speciesId = self.speciesId;
         }
-        if(self.evolveLoaded){
+        if (self.evolveLoaded) {
             p.chain = self.chain;
         }
         return p;
     }
 
-    self.getEvolutionChain = function(){
+    self.getEvolutionChain = function () {
         return self.chain.chain;
     }
 
@@ -98,7 +112,7 @@ function pokemon() {
         return parseInt(ids[1]);
     }
 
-    function CapatalizeName(name){
+    function CapatalizeName(name) {
         return name.charAt(0).toUpperCase() + name.slice(1);
     }
 
