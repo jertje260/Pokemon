@@ -1,6 +1,6 @@
 angular.module('pokemon.services')
 
-    .factory('GameFactory', function () {
+    .factory('GameFactory', ['CompassFactory',function (CompassFactory) {
         var notSoRandomArray = [];
         var canvas;
         var ctx;
@@ -8,6 +8,12 @@ angular.module('pokemon.services')
         var poke;
         var exitImage;
         var callback;
+        var headingStart;
+        var lastHeading;
+        var headings = [];
+        var checkHeadings = {};
+        var stopRunning = false;
+        var headingChanged = 0;
 
         function init() {
             var pokes = [];
@@ -48,7 +54,7 @@ angular.module('pokemon.services')
 
         function canvasClick(event) {
             if (event.layerX >= 10 && event.layerX <= 45 && event.layerY >= 10 && event.layerY <= 45) {
-                endAnimation();
+                stopRunning = true;
             }
             event.preventDefault();
         }
@@ -57,6 +63,8 @@ angular.module('pokemon.services')
             poke = pokemon;
             callback = returnFunc;
 
+            CompassFactory.startWatching(updateHeading);
+            stopRunning = false;
             canvas.height = canvas.parentElement.scrollHeight;
             canvas.width = canvas.parentElement.scrollWidth;
             pokeImg = new Image(96, 96);
@@ -68,24 +76,75 @@ angular.module('pokemon.services')
             pokeImg.src = 'img/pokemon/' + poke.id + '.png';
         }
 
+        function updateHeading(heading) {
+            heading = heading.magneticHeading;
+            if (headingStart === undefined || headingStart === null) {
+                headingStart = heading;
+                headingChanged = 0;
+                checkHeadings.north = false;
+                checkHeadings.east = false;
+                checkHeadings.south = false;
+                checkHeadings.west = false;
+                headings = [];
+                headings.push(heading);
+            } else {
+                headingChanged += (heading - headings[headings.length - 1]);
+                if (heading > 90 && headings[headings.length - 1] < 90 || heading < 90 && headings[headings.length - 1] > 90) {
+                    checkHeadings.east = true;
+                } else if (heading > 180 && headings[headings.length - 1] < 180 || heading < 180 && headings[headings.length - 1] > 180) {
+                    checkHeadings.south = true;
+                } else if (heading > 270 && headings[headings.length - 1] < 270 || heading < 270 && headings[headings.length - 1] > 270) {
+                    checkHeadings.west = true;
+                } else if (heading > 0 && headings[headings.length - 1] < 360 && (heading +360) > headings[headings.length - 1]|| heading < 360 && headings[headings.length - 1] > 0 && (headings[headings.length - 1] +360) > heading) {
+                    checkHeadings.east = true;
+                }
+                headings.push(heading);
+            }
+        }
+
+        function done(){
+            return(checkHeadings.east && checkHeadings.south && checkHeadings.west && checkHeadings.north || stopRunning);
+        }        
+
+        function draw() {
+            if(!done()){
+            setTimeout(function () {
+
+                requestAnimationFrame(draw);
+
+                render();
+
+            }, 1000 / 30);
+            } else {
+                endAnimation();
+            }
+        }
+
+        function render() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "#AFFFA0";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "#000000";
+            ctx.font = "15px Hevetica";
+            ctx.textAlign = "center";
+            ctx.fillText("A wild " + poke.name + " appeared", canvas.width / 2, 30);
+            ctx.fillText("You have changed " + headingChanged + " degrees", canvas.width/2, canvas.height - 60);
+            ctx.fillText("Start catching " + poke.name + " by turning your phone", canvas.width / 2, canvas.height - 30);
+
+            ctx.drawImage(pokeImg, canvas.width / 2 - pokeImg.width, canvas.height / 2 - pokeImg.height, pokeImg.width * 2, pokeImg.height * 2);
+            ctx.drawImage(exitImage, 10, 10, 35, 35);
+        }
+
         function startAnimation() {
             if (pokeImg !== undefined && pokeImg.isLoaded && exitImage !== undefined && exitImage.isLoaded) {
                 canvas.style.display = "block";
-                ctx.fillStyle = "#AFFFA0";
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.fillStyle = "#000000";
-                ctx.font = "15px Hevetica";
-                ctx.textAlign = "center";
-                ctx.fillText("A wild " + poke.name + " appeared", canvas.width / 2, 30);
-
-                ctx.fillText("Start catching " + poke.name + " by turning your phone", canvas.width / 2, canvas.height - 30);
-
-                ctx.drawImage(pokeImg, canvas.width / 2 - pokeImg.width, canvas.height / 2 - pokeImg.height, pokeImg.width * 2, pokeImg.height * 2);
-                ctx.drawImage(exitImage, 10, 10, 35, 35);
+                draw();
             }
         }
 
         function endAnimation() {
+            CompassFactory.stopWatching();
+            headingStart = null;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             canvas.style.display = "none";
             if (callback !== undefined && typeof callback === 'function') {
@@ -99,4 +158,4 @@ angular.module('pokemon.services')
             spawnPoke: spawnPoke,
             doGamePlay: doGamePlay
         };
-    });
+    }]);

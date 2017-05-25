@@ -1,4 +1,4 @@
-angular.module('pokemon.services', ['ngStorage'])
+angular.module('pokemon.services', ['ngStorage','ngCordova'])
 
     .factory('PokemonFactory', function ($http, $localStorage, $q) {
         var url = 'http://pokeapi.co/api/v2/'

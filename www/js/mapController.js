@@ -1,46 +1,26 @@
 angular.module('pokemon.controllers')
 
-    .controller('MapCtrl', function ($scope, $cordovaGeolocation, $ionicLoading, PlayerFactory, $ionicPlatform, GameFactory, PokemonFactory) {
-        var posOptions = { timeout: 10000, enableHighAccuracy: true };
+    .controller('MapCtrl', function ($scope, $ionicLoading, PlayerFactory, $ionicPlatform, GameFactory, PokemonFactory, GeolocationFactory) {
         $scope.player = PlayerFactory.getPlayerInfo();
         $scope.poke = null;
 
         $ionicPlatform.ready(function () {
+            GeolocationFactory.getCurrentPosition(function (position) {
+                updateLocation(position);
+                initialize();
+                createMarker();
+                center();
+            })
+            GeolocationFactory.startWatching(function (position) {
+                updateLocation(position);
+                updateMarker();
+                center();
+                if ($scope.player.spawnPoke) {
+                    spawnPoke();
+                }
+            });
 
 
-            $cordovaGeolocation
-                .getCurrentPosition(posOptions)
-                .then(function (position) {
-                    updateLocation(position);
-                    initialize();
-                    createMarker();
-                    center();
-                }, function (err) {
-                    // error
-                    console.warn(err.code + '::::' + err.message);
-                });
-
-
-            var watchOptions = {
-                timeout: 10000,
-                enableHighAccuracy: true // may cause errors if true
-            };
-
-            var watch = $cordovaGeolocation.watchPosition(watchOptions);
-            watch.then(
-                null,
-                function (err) {
-                    // error
-                    console.warn(err.code + '::::' + err.message);
-                },
-                function (position) {
-                    updateLocation(position);
-                    updateMarker();
-                    center();
-                    if($scope.player.spawnPoke){
-                        spawnPoke();
-                    }
-                });
         });
 
 
@@ -52,7 +32,7 @@ angular.module('pokemon.controllers')
 
         }
 
-        function center(){
+        function center() {
             $scope.map.setCenter(new google.maps.LatLng($scope.player.location.lat, $scope.player.location.long));
         }
 
@@ -63,12 +43,12 @@ angular.module('pokemon.controllers')
                 center: myLatlng,
                 zoom: 18,
                 styles: [
-                    { "featureType": "administrative", "elementType": "all", "stylers": [{ "visibility": "off" }] }, 
+                    { "featureType": "administrative", "elementType": "all", "stylers": [{ "visibility": "off" }] },
                     { "featureType": "landscape", "elementType": "all", "stylers": [{ "color": "#AFFFA0" }] },
-                    { "featureType": "poi", "elementType": "all", "stylers": [{ "visibility": "off" }] },  
-                    { "featureType": "transit", "elementType": "all", "stylers": [{ "visibility": "off" }] }, 
-                    { "featureType": "road", "elementType": "geometry", "stylers": [{ "color": "#59A499" }] }, 
-                    { "featureType": "road", "elementType": "geometry.stroke", "stylers": [{ "color": "#F0FF8D" }, { "weight": 2.2 }] }, 
+                    { "featureType": "poi", "elementType": "all", "stylers": [{ "visibility": "off" }] },
+                    { "featureType": "transit", "elementType": "all", "stylers": [{ "visibility": "off" }] },
+                    { "featureType": "road", "elementType": "geometry", "stylers": [{ "color": "#59A499" }] },
+                    { "featureType": "road", "elementType": "geometry.stroke", "stylers": [{ "color": "#F0FF8D" }, { "weight": 2.2 }] },
                     { "featureType": "water", "elementType": "all", "stylers": [{ "visibility": "on" }, { "color": "#1A87D6" }] }],
                 scrollwheel: false,
                 navigationControl: false,
@@ -101,21 +81,21 @@ angular.module('pokemon.controllers')
         }
 
 
-        function spawnPoke(){
+        function spawnPoke() {
             var pokeid = GameFactory.spawnPoke();
             $scope.poke = PokemonFactory.getById(pokeid);
-            console.log('new poke: '+ $scope.poke.name);
+            console.log('new poke: ' + $scope.poke.name);
             PlayerFactory.pokeActive(true);
             PlayerFactory.pokeSpawned();
             GameFactory.doGamePlay($scope.poke, resetPoke);
         }
 
-        function resetPoke(){
+        function resetPoke() {
             $scope.poke = null;
             PlayerFactory.pokeActive(false);
         }
 
-        $scope.triggerPokeSpawn = function(){
+        $scope.triggerPokeSpawn = function () {
             spawnPoke();
         }
 
