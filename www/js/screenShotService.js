@@ -1,4 +1,5 @@
 angular.module('pokemon.services')
+// unused service, since it doesnt support the canvas, used the canvas.tobase64() instead
 
 .service('ScreenShotService', ['$q', function ($q){
 	return {
