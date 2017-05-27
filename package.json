@@ -5,6 +5,8 @@
     "dependencies": {
         "@ionic-native/core": "^3.7.0",
         "@ionic-native/device-orientation": "^3.10.3",
+        "@ionic-native/screenshot": "^3.10.3",
+        "com.darktalker.cordova.screenshot": "^0.1.6",
         "cordova-android": "^6.2.3",
         "cordova-plugin-device-orientation": "^1.0.7",
         "cordova-plugin-geolocation": "~2.4.3",
@@ -36,7 +38,8 @@
         "plugins": {
             "cordova-plugin-geolocation": {},
             "cordova-plugin-x-socialsharing": {},
-            "cordova-plugin-device-orientation": {}
+            "cordova-plugin-device-orientation": {},
+            "com.darktalker.cordova.screenshot": {}
         },
         "platforms": [
             "android"

@@ -4,7 +4,7 @@ angular.module('pokemon.services')
         var player = {};
         var avglocation;
         var locations = [];
-        var spawnDistance = 10;
+        var spawnDistance = 200;
 
         var getPlayerInfo = function () {
             if ($localStorage["player"] !== undefined) {

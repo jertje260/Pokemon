@@ -1,22 +1,24 @@
 angular.module('pokemon.services')
 
-    .factory('GameFactory', ['CompassFactory', function (CompassFactory) {
+    .factory('GameFactory', ['CompassFactory', 'ShareFactory', function (CompassFactory, ShareFactory) {
         var notSoRandomArray = [];
         var canvas;
         var ctx;
         var pokeImg;
         var poke;
         var exitImage;
-        var callback;
+        var reset;
+        var caught;
         var headingStart;
         var lastHeading;
         var headings = [];
-        var checkHeadings = {};
         var stopRunning = false;
         var headingChanged = 0;
         var endingCycles = 60;
         var pokeCaptured = false;
         var pokeballRadius = 80;
+        var shareImg;
+        var sharing = false;
 
         function init() {
             var pokes = [];
@@ -39,6 +41,13 @@ angular.module('pokemon.services')
                 startAnimation();
             }
             exitImage.src = 'img/exit.png';
+            shareImg = new Image(48, 48);
+            shareImg.isLoaded = false;
+            shareImg.onload = function () {
+                shareImg.isLoaded = true;
+                startAnimation();
+            }
+            shareImg.src = 'img/share.png';
             canvas = document.getElementById('canvas');
             ctx = canvas.getContext("2d");
 
@@ -58,13 +67,31 @@ angular.module('pokemon.services')
         function canvasClick(event) {
             if (event.layerX >= 10 && event.layerX <= 45 && event.layerY >= 10 && event.layerY <= 45) {
                 stopRunning = true;
+            } else if (event.layerX >= canvas.width - 45 && event.layerX <= canvas.width - 10 && event.layerY >= 10 && event.layerY <= 45) {
+                share();
             }
             event.preventDefault();
         }
 
-        var doGamePlay = function (pokemon, returnFunc) {
+        function share() {
+            var message;
+            var name;
+            if (!pokeCaptured) {
+                message = 'I have encountered ' + poke.name + ' in the wild!';
+                name = 'encountered_' + poke.name;
+            } else {
+                message = 'I have caught a ' + poke.name + '!';
+                name = 'caught_' + poke.name;
+            }
+            ShareFactory.share(message, null, canvas.toDataURL());
+
+        }
+
+
+        var doGamePlay = function (pokemon, resetPoke, caughtPoke) {
             poke = pokemon;
-            callback = returnFunc;
+            reset = resetPoke;
+            caught = caughtPoke;
             pokeCaptured = false;
             CompassFactory.startWatching(updateHeading);
             stopRunning = false;
@@ -84,17 +111,18 @@ angular.module('pokemon.services')
             if (headingStart === undefined || headingStart === null) {
                 headingStart = heading;
                 headingChanged = 0;
-                checkHeadings.north = undefined;
-                checkHeadings.east = undefined;
-                checkHeadings.south = undefined;
-                checkHeadings.west = undefined;
                 headings = [];
                 headings.push(heading);
             } else {
                 var angle_delta = (((heading - headings[headings.length - 1]) + 180) - Math.floor(((heading - headings[headings.length - 1]) + 180) / 360) * 360) - 180;
                 headingChanged += angle_delta;
                 if (Math.abs(headingChanged) > 360) {
+                    if (typeof caught === 'function') {
+                        caught();
+                    }
+                    CompassFactory.stopWatching();
                     pokeCaptured = true;
+
                 }
                 headings.push(heading);
             }
@@ -126,8 +154,8 @@ angular.module('pokemon.services')
             ctx.fillStyle = "#000000";
             ctx.font = "15px Hevetica";
             ctx.textAlign = "center";
-            // add share image to share a screenshot of pokemon with text
             ctx.drawImage(exitImage, 10, 10, 35, 35);
+            ctx.drawImage(shareImg, canvas.width - 45, 10, 35, 35);
             ctx.drawImage(pokeImg, canvas.width / 2 - pokeImg.width, canvas.height / 2 - pokeImg.height, pokeImg.width * 2, pokeImg.height * 2);
             if (!pokeCaptured) {
                 ctx.fillText("A wild " + poke.name + " appeared", canvas.width / 2, 30);
@@ -202,7 +230,7 @@ angular.module('pokemon.services')
         }
 
         function startAnimation() {
-            if (pokeImg !== undefined && pokeImg.isLoaded && exitImage !== undefined && exitImage.isLoaded) {
+            if (pokeImg !== undefined && pokeImg.isLoaded && exitImage !== undefined && exitImage.isLoaded && shareImg !== undefined && shareImg.isLoaded) {
                 canvas.style.display = "block";
                 draw();
             }
@@ -213,8 +241,8 @@ angular.module('pokemon.services')
             headingStart = null;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             canvas.style.display = "none";
-            if (callback !== undefined && typeof callback === 'function') {
-                callback(pokeCaptured);
+            if (reset !== undefined && typeof reset === 'function') {
+                reset();
             }
 
         }

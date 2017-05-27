@@ -4,6 +4,15 @@ angular.module('pokemon.controllers')
         $scope.player = PlayerFactory.getPlayerInfo();
         $scope.poke = null;
 
+
+        $scope.$on('$ionicView.enter', function(e) {
+            startUpdatingLocation();
+        });
+
+        $scope.$on('$ionicView.leave', function(e){
+            stopUpdatingLocation();
+        })
+
         $ionicPlatform.ready(function () {
             GeolocationFactory.getCurrentPosition(function (position) {
                 updateLocation(position);
@@ -11,6 +20,10 @@ angular.module('pokemon.controllers')
                 createMarker();
                 center();
             })
+        });
+
+
+        function startUpdatingLocation(){
             GeolocationFactory.startWatching(function (position) {
                 updateLocation(position);
                 updateMarker();
@@ -19,10 +32,11 @@ angular.module('pokemon.controllers')
                     spawnPoke();
                 }
             });
+        }
 
-
-        });
-
+        function stopUpdatingLocation(){
+            GeolocationFactory.stopWatching();
+        }
 
         function updateLocation(position) {
             var location = {};
@@ -84,17 +98,18 @@ angular.module('pokemon.controllers')
         function spawnPoke() {
             var pokeid = GameFactory.spawnPoke();
             $scope.poke = PokemonFactory.getById(pokeid);
+            PokemonFactory.seen(pokeid);
             console.log('new poke: ' + $scope.poke.name);
             PlayerFactory.pokeActive(true);
             PlayerFactory.pokeSpawned();
-            GameFactory.doGamePlay($scope.poke, resetPoke);
+            GameFactory.doGamePlay($scope.poke, resetPoke, caughtPoke);
         }
 
-        function resetPoke(captured) {
-            if(captured){
-                // update captured count for pokemon
-            }
-            // update seen count for pokemon
+        function caughtPoke(){
+            PokemonFactory.caught($scope.poke.id);
+        }
+
+        function resetPoke() {
             $scope.poke = null;
             PlayerFactory.pokeActive(false);
         }
@@ -102,5 +117,6 @@ angular.module('pokemon.controllers')
         $scope.triggerPokeSpawn = function () {
             spawnPoke();
         }
+
 
     })

@@ -1,4 +1,4 @@
-angular.module('pokemon.services', ['ngStorage','ngCordova'])
+angular.module('pokemon.services', ['ngStorage', 'ngCordova'])
 
     .factory('PokemonFactory', function ($http, $localStorage, $q) {
         var url = 'http://pokeapi.co/api/v2/'
@@ -110,7 +110,7 @@ angular.module('pokemon.services', ['ngStorage','ngCordova'])
             }
         }
 
-        var getPokemon = function(id) {
+        var getPokemon = function (id) {
             for (var i = 0; i < pokemonList.length; i++) {
                 if (pokemonList[i].id === id) {
                     return pokemonList[i];
@@ -144,11 +144,28 @@ angular.module('pokemon.services', ['ngStorage','ngCordova'])
             return null;
         }
 
+        var seen = function(id){
+            var poke = getPokemon(id);
+            if(poke !== null){
+                poke.seen++;
+            }
+            savePokemon();
+        }
+
+        var caught = function(id){
+            var poke = getPokemon(id);
+            if(poke !== null){
+                poke.caught++;
+            }
+            savePokemon();
+        }
 
         return {
             all: pokemonList,
             get: getPokemonById,
-            getById: getPokemon
+            getById: getPokemon,
+            seen : seen,
+            caught: caught
         };
     })
 
