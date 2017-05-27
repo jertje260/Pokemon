@@ -1,10 +1,10 @@
 # Pokemon App
 
 This Ionic App is a school assignment. I have made use of the following native components:
-..* Geolocation
-..* Compass/device orientation
-..* Sharing
-..* LocalStorage
+* Geolocation
+* Compass/device orientation
+* Sharing
+* LocalStorage
 
 ## What does it do
 
@@ -14,4 +14,4 @@ The app also has a Pokédex with Pokémon from the first generation. Information
 
 For the icons, I made use of Material Icons.
 
-## GOTTA CATCH 'EM ALL! 
+**GOTTA CATCH 'EM ALL! **
